@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    {%load static%}
+    <link rel="stylesheet" href="{% static 'css/stylebook.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light" id="navbar">
+        <a class="navbar-brand" id="logo" href="/home">
+            <img src="{% static '/img/CD_symbol.jpg'%}" width="60" height="60" class="d-inline-block align-top" alt="">
+            CodingDojo Library
+        </a>
+        <form action="/logout" class="p-2 bd-highlight" method="POST">
+        {%csrf_token%}
+        <h4 class="navbar-brand" id="navh4">Welcome {{user.first_name}}({{age}})</h4>
+            <input type="submit" class="btn btn-danger" value="logout">
+        </form>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+            {% if user == allbook.uploaded_by %}
+                {% if messages %}
+                <div class="errors">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{message}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <h1 id="h1title">Title:</h1>
+                <form action="/edit/{{allbook.id}}" method="POST">
+                {% csrf_token %}
+                    <input type="text" class="form-control" id="title" name='title' value="{{allbook.title}}" >
+                <h3>Added by: {{allbook.uploaded_by.first_name}} {{allbook.uploaded_by.last_name}}</h3>
+                <h3>Added on: {{allbook.created_at}}</h3>
+                <h3>Last updated on: {{allbook.updated_at}}</h3>
+                <h3>Description:</h3>
+                    <textarea class="form-control" id="desc" name='desc' rows="8">{{allbook.desc}}</textarea>
+                    <div class="text-right">
+                        <input type="submit" class="btn btn-success" value="Update Book">
+                    </div>
+                </form>
+                <form action="/erase/{{allbook.id}}" method="POST">
+                {% csrf_token %}
+                <div class="text-right">
+                    <h4>Or</h4>
+                    <input type="submit" class="btn btn-danger" value="Delete Book">
+                </form>
+                </div>
+            {%else%}
+                <h1>{{allbook.title}}</h1>
+                <h3>Added by: {{allbook.uploaded_by.first_name}} {{allbook.uploaded_by.last_name}}</h3>
+                <h3>Added on: {{allbook.created_at}}</h3>
+                <h3>Last updated on: {{allbook.updated_at}}</h3>
+                <h3>Description: <span>{{allbook.desc}}</span></h3>
+            {%endif%}
+            </div>
+            <div class="col-6">
+                <h2>Users Who Liked This Book</h2>
+                {% for u in allbook.users_who_liked.all %}
+                    <h3 id="user">
+                        <li>{{u.first_name}} {{u.last_name}}</li>
+                    </h3>
+                {%endfor%}
+                {%if user not in allbook.users_who_liked.all %}
+                    <form action="/addfavbook/{{allbook.id}}" id="fav" method="POST">
+                    {% csrf_token %}
+                        <input type="submit" class="btn btn-link" value="Add To Favorites">
+                    </form>
+                {%endif%}
+                {%if user in allbook.users_who_liked.all %}
+                    <form action="/removefavbook/{{allbook.id}}" id="fav" method="POST">
+                        {% csrf_token %}
+                            <input type="submit" class="btn btn-link" value="Remove from Favorites">
+                    </form>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

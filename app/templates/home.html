@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    {%load static%}
+    <link rel="stylesheet" href="{% static 'css/stylehome.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-light bg-light" id="navbar">
+        <label class="navbar-brand" id="logo" href="#">
+            <img src="{% static '/img/CD_symbol.jpg'%}" width="60" height="60" class="d-inline-block align-top" alt="">
+            CodingDojo Library
+        </label>
+        <form action="/logout" class="p-2 bd-highlight" method="POST">
+        {%csrf_token%}
+        <h4 class="navbar-brand" id="navh4">Welcome {{user.first_name}}({{age}})</h4>
+            <input type="submit" class="btn btn-danger" value="logout">
+        </form>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                {% if messages %}
+                <div class="errors">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{message}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <form action="/addbook" method="POST" class="add">
+                    <h1 class="row justify-content-center">Add a Book</h1>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Title</label>
+                        <input type="text" class="form-control" name='title' placeholder="book Title" >
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlTextarea1">Description</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" name='desc' rows="3"></textarea>
+                    </div>
+                    <input type="submit" class="btn btn-primary" value="Add Book">
+                </form>
+            </div>
+            <div class="col-6">
+                <h1 class="text-center">All Books</h1>
+                {% for book in allbooks %}
+                    <a href="/book/{{book.id}}" class="btn btn-link" id="book"><h2>{{book.title}}</h2></a>
+                    <p id="adder">(added by {{book.uploaded_by.first_name}} {{book.uploaded_by.last_name}})</p>
+                    {% if user in book.users_who_liked.all %}
+                        <p id="fav">this is one of your favorites books</p>
+                        <form action="/removefav/{{book.id}}" name="home" method="POST">
+                            {% csrf_token %}
+                                <input type="submit" class="btn btn-link" value="Remove from Favorites">
+                        </form>
+                    {%else%}
+                        <form action="/addfav/{{book.id}}" name="home" method="POST">
+                        {% csrf_token %}
+                            <input type="submit" class="btn btn-link" value="Add To Favorites">
+                        </form>
+                    {%endif%}
+                {%endfor%}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
